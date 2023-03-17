@@ -1,0 +1,47 @@
+     1                                 %line 1+1 mul1.asm
+     2                                 [org 0x100]
+     3                                 start:
+     4 00000000 B003                    mov al,0x03
+     5 00000002 B102                    mov cl,0x02
+     6 00000004 F6E1                    mul cl
+     7                                 
+     8 00000006 0430                    add al,0x30
+     9 00000008 E8FFFF                  call display_letter
+    10                                 
+    11                                 %line 1+1 ../lib/library1.asm
+    12 0000000B CD20                    int 0x20
+    13                                 
+    14                                 
+    15                                 display_letter:
+    16 0000000D 50                      push ax
+    17 0000000E 53                      push bx
+    18 0000000F 51                      push cx
+    19 00000010 52                      push dx
+    20 00000011 56                      push si
+    21 00000012 57                      push di
+    22 00000013 B40E                    mov ah,0x0e
+    23 00000015 BB0F00                  mov bx,0x000f
+    24 00000018 CD10                    int 0x10
+    25 0000001A 5F                      pop di
+    26 0000001B 5E                      pop si
+    27 0000001C 5A                      pop dx
+    28 0000001D 59                      pop cx
+    29 0000001E 5B                      pop bx
+    30 0000001F 58                      pop ax
+    31 00000020 C3                      ret
+    32                                 
+    33                                 
+    34                                 read_keyboard:
+    35 00000021 53                      push bx
+    36 00000022 51                      push cx
+    37 00000023 52                      push dx
+    38 00000024 56                      push si
+    39 00000025 57                      push di
+    40 00000026 B400                    mov ah,0x00
+    41 00000028 CD16                    int 0x16
+    42 0000002A 5F                      pop di
+    43 0000002B 5E                      pop si
+    44 0000002C 5A                      pop dx
+    45 0000002D 59                      pop cx
+    46 0000002E 5B                      pop bx
+    47 0000002F C3                      ret
