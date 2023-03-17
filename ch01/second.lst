@@ -1,0 +1,16 @@
+     1                                 %line 1+1 second.asm
+     2                                 [org 0x100]
+     3                                 start:
+     4 00000000 B400                    mov ah,0x00
+     5 00000002 CD16                    int 0x16
+     6                                 
+     7 00000004 3C1B                    cmp al,0x1b
+     8 00000006 7407                    je exit_to_command_line
+     9 00000008 B40E                    mov ah,0x0e
+    10 0000000A BB0F00                  mov bx,0x000f
+    11 0000000D CD10                    int 0x10
+    12 0000000F EBED                    jmp start
+    13                                 
+    14                                 exit_to_command_line:
+    15 00000011 CD20                    int 0x20
+    16                                 

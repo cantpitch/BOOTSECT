@@ -1,0 +1,22 @@
+     1                                 %line 1+1 first.asm
+     2                                 [org 0x100]
+     3                                 
+     4                                 start:
+     5 00000000 BB1701                  mov bx,string
+     6                                 repeat:
+     7 00000003 8A07                    mov al,[bx]
+     8 00000005 84C0                    test al,al
+     9 00000007 740A                    je end
+    10 00000009 53                      push bx
+    11 0000000A B40E                    mov ah,0x0e
+    12 0000000C BB0F00                  mov bx,0x000f
+    13 0000000F CD10                    int 0x10
+    14 00000011 5B                      pop bx
+    15 00000012 43                      inc bx
+    16 00000013 EBEC                    jmp repeat
+    17                                 end:
+    18 00000015 CD20                    int 0x20
+    19                                 
+    20                                 string:
+    21 00000017 48656C6C6F2C20576F-     db 'Hello, World',0
+    22 00000017 726C6400           
