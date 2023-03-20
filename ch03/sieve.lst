@@ -1,0 +1,94 @@
+     1                                 %line 1+1 sieve.asm
+     2                                 
+     3                                 
+     4                                 
+     5                                 [org 0x100]
+     6                                 
+     7                                 table: equ 0x8000
+     8                                 table_size: equ 1000
+     9                                 
+    10                                 start:
+    11 00000000 BB0080                  mov bx,table
+    12 00000003 B9E803                  mov cx,table_size
+    13 00000006 B000                    mov al,0
+    14                                 p1:
+    15 00000008 8807                    mov [bx],al
+    16 0000000A 43                      inc bx
+    17 0000000B E2F9                    loop p1
+    18 0000000D B80200                  mov ax,2
+    19 00000010 BB0080                 p2: mov bx,table
+    20 00000013 01C3                    add bx,ax
+    21 00000015 803F00                  cmp byte [bx],0
+    22 00000018 751A                    jne p3
+    23 0000001A 50                      push ax
+    24 0000001B E84000                  call display_number
+    25 0000001E B02C                    mov al,','
+    26 00000020 E81800                  call display_letter
+    27 00000023 58                      pop ax
+    28 00000024 BB0080                  mov bx,table
+    29 00000027 01C3                    add bx,ax
+    30 00000029 01C3                   p4: add bx,ax
+    31 0000002B 81FBE883                cmp bx,table+table_size
+    32 0000002F 7303                    jnc p3
+    33 00000031 C60701                  mov byte [bx],1
+    34 00000034 EBF1                    jmp p4
+    35 00000036 40                     p3: inc ax
+    36 00000037 3DE803                  cmp ax,table_size
+    37 0000003A 75D2                    jne p2
+    38                                 
+    39                                 %line 1+1 ../lib/library2.asm
+    40 0000003C CD20                    int 0x20
+    41                                 
+    42                                 
+    43                                 display_letter:
+    44 0000003E 50                      push ax
+    45 0000003F 53                      push bx
+    46 00000040 51                      push cx
+    47 00000041 52                      push dx
+    48 00000042 56                      push si
+    49 00000043 57                      push di
+    50 00000044 B40E                    mov ah,0x0e
+    51 00000046 BB0F00                  mov bx,0x000f
+    52 00000049 CD10                    int 0x10
+    53 0000004B 5F                      pop di
+    54 0000004C 5E                      pop si
+    55 0000004D 5A                      pop dx
+    56 0000004E 59                      pop cx
+    57 0000004F 5B                      pop bx
+    58 00000050 58                      pop ax
+    59 00000051 C3                      ret
+    60                                 
+    61                                 
+    62                                 
+    63                                 
+    64                                 read_keyboard:
+    65 00000052 53                      push bx
+    66 00000053 51                      push cx
+    67 00000054 52                      push dx
+    68 00000055 56                      push si
+    69 00000056 57                      push di
+    70 00000057 B400                    mov ah,0x00
+    71 00000059 CD16                    int 0x16
+    72 0000005B 5F                      pop di
+    73 0000005C 5E                      pop si
+    74 0000005D 5A                      pop dx
+    75 0000005E 59                      pop cx
+    76 0000005F 5B                      pop bx
+    77 00000060 C3                      ret
+    78                                 
+    79                                 
+    80                                 
+    81                                 
+    82                                 display_number:
+    83 00000061 BA0000                  mov dx,0
+    84 00000064 B90A00                  mov cx,10
+    85 00000067 F7F1                    div cx
+    86 00000069 52                      push dx
+    87 0000006A 83F800                  cmp ax,0
+    88 0000006D 7401                    je display_number_1
+    89 0000006F E8ECFF                  call display_number
+    90                                 display_number_1:
+    91 00000072 58                      pop ax
+    92 00000073 0430                    add al,'0'
+    93 00000075 E8C3FF                  call display_letter
+    94 00000078 C3                      ret

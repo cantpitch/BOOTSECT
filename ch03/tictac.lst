@@ -1,0 +1,204 @@
+     1                                 %line 1+1 tictac.asm
+     2                                 
+     3                                 
+     4                                 
+     5                                 
+     6                                 
+     7                                 [org 0x100]
+     8                                 
+     9                                 board: equ 0x0300
+    10                                 
+    11                                 start:
+    12 00000000 BB0003                  mov bx,board
+    13 00000003 B90900                  mov cx,9
+    14 00000006 B031                    mov al,'1'
+    15                                 b09:
+    16 00000008 8807                    mov [bx],al
+    17 0000000A FEC0                    inc al
+    18 0000000C 43                      inc bx
+    19 0000000D E2F7                    loop b09
+    20                                 
+    21                                 b10:
+    22 0000000F E83500                  call show_board
+    23 00000012 E88700                  call find_line
+    24 00000015 E80E00                  call get_movement
+    25 00000018 C60758                  mov byte [bx],'X'
+    26                                 
+    27 0000001B E82900                  call show_board
+    28 0000001E E87B00                  call find_line
+    29                                 
+    30 00000021 E80200                  call get_movement
+    31 00000024 C6074F                  mov byte [bx],'O'
+    32                                 
+    33 00000027 EBE4                    jmp b10
+    34                                 
+    35                                 get_movement:
+    36 00000029 E81401                  call read_keyboard
+    37 0000002C 3C1B                    cmp al,0x1b
+    38 0000002E 7416                    je do_exit
+    39 00000030 2C31                    sub al,'1'
+    40 00000032 72F3                    jc get_movement
+    41 00000034 3C09                    cmp al,9
+    42 00000036 73EF                    jnc get_movement
+    43 00000038 98                      cbw
+    44 00000039 BB0003                  mov bx,board
+    45 0000003C 01C3                    add bx,ax
+    46 0000003E 8A07                    mov al,[bx]
+    47 00000040 3C40                    cmp al,0x40
+    48 00000042 73E3                    jnc get_movement
+    49 00000044 E82A00                  call show_crlf
+    50 00000047 C3                      ret
+    51                                 
+    52                                 do_exit:
+    53 00000048 CD20                    int 0x20
+    54                                 
+    55                                 show_board:
+    56 0000004A BB0003                  mov bx,board
+    57 0000004D E80E00                  call show_row
+    58 00000050 E82800                  call show_div
+    59 00000053 BB0303                  mov bx,board+3
+    60 00000056 E80500                  call show_row
+    61 00000059 E81F00                  call show_div
+    62 0000005C BB0603                  mov bx,board+6
+    63 0000005F EBFE                    jmp show_row
+    64                                 
+    65                                 show_row:
+    66 00000061 E83200                  call show_square
+    67 00000064 B07C                    mov al,'|'
+    68 00000066 E8C300                  call display_letter
+    69 00000069 E82A00                  call show_square
+    70 0000006C B07C                    mov al,'|'
+    71 0000006E E8BB00                  call display_letter
+    72 00000071 E82200                  call show_square
+    73                                 show_crlf:
+    74 00000074 B00D                    mov al,0x0d
+    75 00000076 E8B300                  call display_letter
+    76 00000079 B00A                    mov al,0x0a
+    77 0000007B E9AE00                  jmp display_letter
+    78                                 
+    79                                 show_div:
+    80 0000007E B02D                    mov al,'-'
+    81 00000080 E8A900                  call display_letter
+    82 00000083 B02B                    mov al,'+'
+    83 00000085 E8A400                  call display_letter
+    84 00000088 B02D                    mov al,'-'
+    85 0000008A E89F00                  call display_letter
+    86 0000008D B02B                    mov al,'+'
+    87 0000008F E89A00                  call display_letter
+    88 00000092 B02D                    mov al,'-'
+    89 00000094 E89500                  call display_letter
+    90 00000097 EBD9                    jmp show_crlf
+    91                                 
+    92                                 show_square:
+    93 00000099 8A07                    mov al,[bx]
+    94 0000009B 43                      inc bx
+    95 0000009C E98D00                  jmp display_letter
+    96                                 
+    97                                 find_line:
+    98                                 
+    99 0000009F A00003                  mov al,[board]
+   100 000000A2 3A060103                cmp al,[board+1]
+   101 000000A6 7504                    jne b01
+   102 000000A8 3A060203                cmp al,[board+2]
+   103 000000AC 745F                    je won
+   104                                 b01:
+   105                                 
+   106 000000AE 3A060303                cmp al,[board+3]
+   107 000000B2 7504                    jne b04
+   108 000000B4 3A060603                cmp al,[board+6]
+   109 000000B8 7453                    je won
+   110                                 b04:
+   111                                 
+   112 000000BA 3A060403                cmp al,[board+4]
+   113 000000BE 7504                    jne b05
+   114 000000C0 3A060803                cmp al,[board+8]
+   115 000000C4 7447                    je won
+   116                                 b05:
+   117                                 
+   118 000000C6 A00303                  mov al,[board+3]
+   119 000000C9 3A060403                cmp al,[board+4]
+   120 000000CD 7504                    jne b02
+   121 000000CF 3A060503                cmp al,[board+5]
+   122 000000D3 7438                    je won
+   123                                 b02:
+   124                                 
+   125 000000D5 A00603                  mov al,[board+6]
+   126 000000D8 3A060703                cmp al,[board+7]
+   127 000000DC 7504                    jne b03
+   128 000000DE 3A060803                cmp al,[board+8]
+   129 000000E2 7429                    je won
+   130                                 b03:
+   131                                 
+   132 000000E4 A00103                  mov al,[board+1]
+   133 000000E7 3A060403                cmp al,[board+4]
+   134 000000EB 7504                    jne b06
+   135 000000ED 3A060703                cmp al,[board+7]
+   136 000000F1 741A                    je won
+   137                                 b06:
+   138                                 
+   139 000000F3 A00203                  mov al,[board+2]
+   140 000000F6 3A060503                cmp al,[board+5]
+   141 000000FA 7504                    jne b07
+   142 000000FC 3A060803                cmp al,[board+8]
+   143 00000100 740B                    je won
+   144                                 b07:
+   145                                 
+   146 00000102 3A060403                cmp al,[board+4]
+   147 00000106 7504                    jne b08
+   148 00000108 3A060603                cmp al,[board+6]
+   149 0000010C 74FF                    je won
+   150                                 b08:
+   151 0000010E C3                      ret
+   152                                 
+   153                                 won:
+   154                                 
+   155 0000010F E81A00                  call display_letter
+   156 00000112 B020                    mov al,' '
+   157 00000114 E81500                  call display_letter
+   158 00000117 B077                    mov al,'w'
+   159 00000119 E81000                  call display_letter
+   160 0000011C B069                    mov al,'i'
+   161 0000011E E80B00                  call display_letter
+   162 00000121 B06E                    mov al,'n'
+   163 00000123 E80600                  call display_letter
+   164 00000126 B073                    mov al,'s'
+   165 00000128 E80100                  call display_letter
+   166 0000012B CD20                    int 0x20
+   167                                 
+   168                                 %line 1+1 ../lib/library1.asm
+   169 0000012D CD20                    int 0x20
+   170                                 
+   171                                 
+   172                                 display_letter:
+   173 0000012F 50                      push ax
+   174 00000130 53                      push bx
+   175 00000131 51                      push cx
+   176 00000132 52                      push dx
+   177 00000133 56                      push si
+   178 00000134 57                      push di
+   179 00000135 B40E                    mov ah,0x0e
+   180 00000137 BB0F00                  mov bx,0x000f
+   181 0000013A CD10                    int 0x10
+   182 0000013C 5F                      pop di
+   183 0000013D 5E                      pop si
+   184 0000013E 5A                      pop dx
+   185 0000013F 59                      pop cx
+   186 00000140 5B                      pop bx
+   187 00000141 58                      pop ax
+   188 00000142 C3                      ret
+   189                                 
+   190                                 
+   191                                 read_keyboard:
+   192 00000143 53                      push bx
+   193 00000144 51                      push cx
+   194 00000145 52                      push dx
+   195 00000146 56                      push si
+   196 00000147 57                      push di
+   197 00000148 B400                    mov ah,0x00
+   198 0000014A CD16                    int 0x16
+   199 0000014C 5F                      pop di
+   200 0000014D 5E                      pop si
+   201 0000014E 5A                      pop dx
+   202 0000014F 59                      pop cx
+   203 00000150 5B                      pop bx
+   204 00000151 C3                      ret
